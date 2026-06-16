@@ -14,8 +14,27 @@ return. The decision strictly precedes the return it earns, so no future data
 can leak backward into a past decision.
 """
 
+from dataclasses import dataclass
+
 import numpy as np
 import pandas as pd
+
+
+@dataclass(frozen=True)
+class BacktestResult:
+    """The result of a backtest.
+
+    Attributes
+    ----------
+    returns:
+        A pandas Series of per-period portfolio returns.
+    metrics:
+        A dict with keys ``total_return``, ``sharpe``, ``max_drawdown`` and
+        ``turnover``.
+    """
+
+    returns: pd.Series
+    metrics: dict
 
 
 def compute_returns(prices):
@@ -134,7 +153,20 @@ def backtest(prices, strategy):
 
     Returns
     -------
-    result
-        The backtest result (return series plus core metrics).
+    BacktestResult
+        ``result.returns`` is the per-period portfolio return Series;
+        ``result.metrics`` is a dict with ``total_return``, ``sharpe``,
+        ``max_drawdown`` and ``turnover``.
+
+    This is a pure composition of the tested components -- it introduces no new
+    computation of its own.
     """
-    raise NotImplementedError
+    positions, returns = run_walk_forward(prices, strategy)
+    r = compute_returns_series(positions, returns)
+    metrics = {
+        "total_return": total_return(r),
+        "sharpe": sharpe(r),
+        "max_drawdown": max_drawdown(r),
+        "turnover": turnover(positions),
+    }
+    return BacktestResult(returns=r, metrics=metrics)
