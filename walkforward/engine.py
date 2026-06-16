@@ -14,6 +14,8 @@ return. The decision strictly precedes the return it earns, so no future data
 can leak backward into a past decision.
 """
 
+import pandas as pd
+
 
 def compute_returns(prices):
     """Compute simple (arithmetic) per-period returns from a price frame.
@@ -25,6 +27,34 @@ def compute_returns(prices):
     ``returns.loc[d]`` is the return realized from the prior row to row ``d``.
     """
     return prices.pct_change()
+
+
+def run_walk_forward(prices, strategy):
+    """Walk forward through ``prices``, collecting each day's positions.
+
+    For every date ``t`` in ``prices.index`` (in order, exactly once) the
+    strategy is called with ``prices.loc[:t]`` -- the slice up to and including
+    ``t``. The slice ends at the current date, so the strategy can never receive
+    a future row: the no-lookahead guarantee is structural.
+
+    The loop does only one thing: call the strategy and store its output. No
+    P&L, no shift, no multiplication by returns happens here. Positions are
+    stored *unshifted*, keyed by the date whose data produced them; the
+    ``t -> t + 1`` alignment is applied downstream, vectorized.
+
+    Returns ``(positions, returns)``: ``positions`` is a DataFrame indexed by
+    ``prices.index`` with one column per asset (column order matching
+    ``prices``), and ``returns`` is ``compute_returns(prices)``.
+    """
+    records = {}
+    for date in prices.index:
+        records[date] = strategy(prices.loc[:date])
+
+    positions = pd.DataFrame(records).T.reindex(
+        index=prices.index, columns=prices.columns
+    )
+    returns = compute_returns(prices)
+    return positions, returns
 
 
 def backtest(prices, strategy):
