@@ -7,6 +7,7 @@ defines what simple returns should look like.
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from walkforward.engine import compute_returns
 
@@ -30,5 +31,5 @@ def test_compute_returns_preserves_index_and_columns():
 
     assert list(returns.columns) == ["A", "B"]
     assert returns.index.equals(prices.index)
-    assert returns["A"].iloc[1] == 0.1
-    assert returns["B"].iloc[1] == 0.1
+    assert returns["A"].iloc[1] == pytest.approx(0.1)
+    assert returns["B"].iloc[1] == pytest.approx(0.1)
