@@ -57,6 +57,18 @@ def run_walk_forward(prices, strategy):
     return positions, returns
 
 
+def compute_returns_series(positions, returns):
+    """Combine unshifted positions with returns into one portfolio return Series.
+
+    ``positions.shift(1)`` applies the ``t -> t + 1`` alignment once over the
+    whole matrix: a position held into day ``d`` was decided at ``d - 1`` and
+    earns day ``d``'s return. The cross-sectional ``sum(axis=1)`` across assets
+    is valid because returns are simple / arithmetic, so per-asset contributions
+    add. The first row is ``0.0`` because no position is held into day one.
+    """
+    return (positions.shift(1) * returns).sum(axis=1).fillna(0.0)
+
+
 def backtest(prices, strategy):
     """Run a walk-forward backtest.
 
