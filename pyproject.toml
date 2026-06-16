@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "walkforward"
+version = "0.1.0"
+description = "A backtesting engine that is fast by construction and correct by construction."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Oliver Meuse" }]
+dependencies = [
+    "pandas",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/olivermeuse/walkforward"
+Repository = "https://github.com/olivermeuse/walkforward"
+Issues = "https://github.com/olivermeuse/walkforward/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["walkforward"]
