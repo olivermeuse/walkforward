@@ -1,3 +1,5 @@
+![CI](https://github.com/olivermeuse/walkforward/actions/workflows/ci.yml/badge.svg)
+
 # walkforward
 
 **A backtesting engine that is fast by construction and correct by construction.** Walk-forward backtests run in minutes on a laptop where naive versions take hours, and the interface makes lookahead bias structurally hard to introduce.
